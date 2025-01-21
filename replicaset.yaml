@@ -1,0 +1,26 @@
+# conjunto estável de pods com estratégia de manutenção
+# chaves: estabilidade, instabilidade, disponibilidade, garantia.
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx-rs
+  labels:
+    name: nginx-rs
+spec:
+  replicas: 2
+  selector:
+    #app: ngix-app
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      name: ngix-producao
+      labels:
+        app: nginx-producao
+        tier: frontend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80

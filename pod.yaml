@@ -1,0 +1,11 @@
+# exemplo simples para um pod com um conteiner
+apiVersion: apps/v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+    ports:
+    - containerPort: 80

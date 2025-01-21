@@ -1,0 +1,21 @@
+# exemplo de pod com dois conteineres cujo acoplamento é grande
+apiVersion: apps/v1
+kind: Pod
+metadata:
+  name: dipod
+  labels:
+    name: dipod
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+  - name: mariadb
+    image: mariadb:latest
+    env:
+    - name: MARIADB_ROOT_PASSWORD
+      value: rinoceteio
+    ports:
+    - containerPort: 3306
+
