@@ -1,0 +1,47 @@
+# DEFINIÇÃO DOS PODS
+
+#Pod de dois containeres
+apiVersion: v1
+kind: Pod
+metadata:
+  name: aplicacao-web
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: proxy
+spec:
+  containers:
+  - name: server-mvc
+    image: node/aplicacao-web:0.0.1
+    ports:
+      - containerPort: 8080
+        name: http-nodejs-svc
+  - name: mysql
+    image: mysql:latest
+    ports:
+      - containerPort: 3306
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      value: "root"
+    - name: MYSQL_DATABASE
+      value: "appdb"
+    - name: MYSQL_USER
+      value: "appusr"
+    - name: MYSQL_PASSWORD
+      value: "apppas"
+
+
+---
+# DEFINIÇÃO DO SERVIÇO
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-servico
+  namespace: dev
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: proxy
+  ports:
+  - port: 80
+    targetPort: http-nodejs-svc
+    nodePort: 30007
