@@ -1,47 +1,57 @@
 # DEFINIÇÃO DOS PODS
-
-#Pod de dois containeres
-apiVersion: v1
-kind: Pod
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: aplicacao-web
   namespace: dev
   labels:
-    app.kubernetes.io/name: proxy
+    app.kubernetes.io/name: aplicacao-web
+    app.kubernetes.io/version: "0.0.1"
 spec:
-  containers:
-  - name: server-mvc
-    image: node/aplicacao-web:0.0.1
-    ports:
-      - containerPort: 8080
-        name: http-nodejs-svc
-  - name: mysql
-    image: mysql:latest
-    ports:
-      - containerPort: 3306
-    env:
-    - name: MYSQL_ROOT_PASSWORD
-      value: "root"
-    - name: MYSQL_DATABASE
-      value: "appdb"
-    - name: MYSQL_USER
-      value: "appusr"
-    - name: MYSQL_PASSWORD
-      value: "apppas"
-
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: aplicacao-web
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: aplicacao-web
+    spec:
+      containers:
+      - name: server-mvc
+        image: node/aplicacao-web:0.0.1
+        ports:
+          - containerPort: 8080
+      - name: mysql
+        image: mysql:latest
+        ports:
+          - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root"
+        - name: MYSQL_DATABASE
+          value: "appdb"
+        - name: MYSQL_USER
+          value: "appusr"
+        - name: MYSQL_PASSWORD
+          value: "apppas"
 
 ---
-# DEFINIÇÃO DO SERVIÇO
+# Service
 apiVersion: v1
 kind: Service
 metadata:
   name: app-servico
   namespace: dev
+  labels:
+    app.kubernetes.io/name: aplicacao-web
 spec:
   type: NodePort
   selector:
-    app.kubernetes.io/name: proxy
+    app.kubernetes.io/name: aplicacao-web
   ports:
   - port: 80
-    targetPort: http-nodejs-svc
+    targetPort: 8080
     nodePort: 30007
+

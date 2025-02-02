@@ -4,12 +4,19 @@
  *****************************/
 import express from "express";
 import { ROTAS } from "./routes.js";
+import bodyParser from "body-parser";
 
 /*outros middlewares como: cookie-parser, cookie-session ...
  https://expressjs.com/en/resources/middleware.html */
 
 const app = express();
 const PORTA = 8080;
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// parse application/json
+app.use(bodyParser.json());
 
 app.use('/',ROTAS);
 
