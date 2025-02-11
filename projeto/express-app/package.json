@@ -4,9 +4,9 @@
   "version": "1.2.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cd ./src && HOST=127.0.0.1 PORTATCP=3306 USUARIO=appusr PASSWORD=apppas BANCODEDADOS=appdb node index.js",
-    "prod": "cd ./src && HOST=127.0.0.1 PORTATCP=3306 USUARIO=appusr PASSWORD=apppas BANCODEDADOS=appdb node index.js"
+    "test": "echo \"Teste em produção e viva a emocao!\" && exit 1",
+    "dev": "cd ./src && node index.js",
+    "prod": "cd ./src && node index.js"
   },
   "author": "LPLA-br",
   "license": "ISC",

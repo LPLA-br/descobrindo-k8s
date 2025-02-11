@@ -1,4 +1,13 @@
-# DEFINIÇÃO DOS PODS
+# APLICAÇÃO: notas demonstrativas
+# history
+# 1.Ambiente: página exemplo 0.0.0 OK
+# 2.Versão 0.2.0
+#   1. criação de notas sem título.
+#   2. visualização crua de notas.
+# 3.Versão 0.2.1
+#   · visualização organizada de notas 
+
+
 # Deployment
 apiVersion: apps/v1
 kind: Deployment
@@ -7,7 +16,7 @@ metadata:
   namespace: dev
   labels:
     app.kubernetes.io/name: aplicacao-web
-    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/version: "0.2.0"
 spec:
   selector:
     matchLabels:
@@ -17,16 +26,32 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: aplicacao-web
-    spec:
+    spec: # pod de dois conteineres
+      volumes:
+        - name: aplicacao-web-pv
+          persistentVolumeClaim:
+            claimName: aplicacao-web-vol-claim
       containers:
       - name: server-mvc
-        image: node/aplicacao-web:0.0.1
+        image: node/aplicacao-web:0.2.0
         ports:
           - containerPort: 8080
+        env:
+        - name: HOST
+          value: "127.0.0.1"
+        - name: PORTATCP
+          value: "3306"
+        - name: USUARIO
+          value: "appusr"
+        - name: PASSWORD # necessita de mais segurança de credenciais. Vide: secrets
+          value: "apppas"
+        - name: BANCODEDADOS
+          value: "appdb"
       - name: mysql
         image: mysql:latest
         ports:
-          - containerPort: 3306
+          - name: "http-app"
+            containerPort: 3306
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: "root"
@@ -36,6 +61,10 @@ spec:
           value: "appusr"
         - name: MYSQL_PASSWORD
           value: "apppas"
+        volumeMounts:
+          - mountPath: "/var/lib/mysql"
+            name: aplicacao-web-vol
+spec.template.spec.containers[1].volumeMounts[0].name:
 
 ---
 # Service
@@ -51,7 +80,41 @@ spec:
   selector:
     app.kubernetes.io/name: aplicacao-web
   ports:
-  - port: 80
-    targetPort: 8080
-    nodePort: 30007
+  - name: http
+    protocol: TCP
+    port: 8080        # a porta deste serviço (por coveniência a mesma de baixo)
+    targetPort: 8080  # porta que a aplicação serve em seu container
+    nodePort: 30007   # porta de node(s) para tráfego vindo de fora do cluster
+---
+#PersistentVolume do tipo HostPath
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: aplicacao-web-vol
+  namespace: dev
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data" # path no container minikube executando no teu host pessoal
+---
+#PersistentVolumeClaim
+#Pods utilizam este objeto para requisitar armazenamento físico
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: aplicacao-web-vol-claim
+  namespace: dev
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
 

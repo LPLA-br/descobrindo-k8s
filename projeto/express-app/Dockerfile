@@ -8,6 +8,5 @@ WORKDIR /project
 COPY . .
 RUN npm install
 EXPOSE 8080/tcp
-WORKDIR /project/src
-CMD ["node","./index.js"]
+CMD ["npm","run","prod"]
 
