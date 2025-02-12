@@ -27,10 +27,6 @@ spec:
       labels:
         app.kubernetes.io/name: aplicacao-web
     spec: # pod de dois conteineres
-      volumes:
-        - name: aplicacao-web-pv
-          persistentVolumeClaim:
-            claimName: aplicacao-web-vol-claim
       containers:
       - name: server-mvc
         image: node/aplicacao-web:0.2.0
@@ -47,7 +43,10 @@ spec:
           value: "apppas"
         - name: BANCODEDADOS
           value: "appdb"
-      - name: mysql
+      - name: mysql-data
+        volumeMounts:
+          - name: aplicacao-web-pv
+            mountPath: "/var/lib/mysql"
         image: mysql:latest
         ports:
           - name: "http-app"
@@ -61,10 +60,10 @@ spec:
           value: "appusr"
         - name: MYSQL_PASSWORD
           value: "apppas"
-        volumeMounts:
-          - mountPath: "/var/lib/mysql"
-            name: aplicacao-web-vol
-spec.template.spec.containers[1].volumeMounts[0].name:
+      volumes:
+        - name: aplicacao-web-pv
+          persistentVolumeClaim:
+            claimName: aplicacao-web-pvc
 
 ---
 # Service
@@ -90,7 +89,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: aplicacao-web-vol
+  name: aplicacao-web-pv
   namespace: dev
   labels:
     type: local
@@ -108,12 +107,12 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: aplicacao-web-vol-claim
+  name: aplicacao-web-pvc
   namespace: dev
 spec:
   storageClassName: manual
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteOnce #leitura e escrita para um node apenas
   resources:
     requests:
       storage: 1Gi
